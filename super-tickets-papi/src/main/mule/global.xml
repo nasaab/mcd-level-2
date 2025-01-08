@@ -150,4 +150,10 @@ http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/cu
 				maxOutstandingMessages="50" />
 		</vm:queues>
 	</vm:config>
+	<http:request-config name="superMoviesSAPIConfig" doc:name="HTTP Request configuration" doc:id="25c1a081-8e73-44cb-aa66-0911b7311e6d" basePath="/api/v1" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<http:request-config name="superBioDataSAPIConfig" doc:name="HTTP Request configuration" doc:id="fcedbe3f-a01a-4ee3-8ff0-78c1e91269dd" basePath="/api/v1" >
+		<http:request-connection host="localhost" port="8082" />
+	</http:request-config>
 </mule>

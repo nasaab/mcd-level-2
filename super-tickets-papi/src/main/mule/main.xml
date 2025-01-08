@@ -17,22 +17,24 @@ http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/cu
 http://www.mulesoft.org/schema/mule/tracing http://www.mulesoft.org/schema/mule/tracing/current/mule-tracing.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+	
 	<flow
 		name="get-booking-data-by-bid"
 		doc:id="4ef4a381-8ed0-41a8-85ab-eb157685ae41">
-		<http:request
-			method="GET"
-			doc:name="Get Booking Data Using BID"
-			doc:id="9fb9952c-c89c-4888-84c1-5a01d1e62b29"
-			config-ref="bookingDataConfig"
-			path="/{bookingId}"
-			target="bookingData">
+		<try doc:name="Try" doc:id="a63795c0-567f-4af3-b41e-760f7c3e1840" >
+			<http:request method="GET" doc:name="Get Booking Data Using BID" doc:id="9fb9952c-c89c-4888-84c1-5a01d1e62b29" config-ref="bookingDataConfig" path="/{bookingId}" target="bookingData">
 			<http:uri-params><![CDATA[#[output application/java
 ---
 {
 	"bookingId" : vars.BID
 }]]]></http:uri-params>
 		</http:request>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4eb456e7-26a5-4cb2-ab82-70c08241476c" type="ANY">
+					<logger level="INFO" doc:name="Logger" doc:id="82854147-d273-4a4d-a8cd-c81117c13491" message="By pass service call error for local testing..."/>
+				</on-error-continue>
+			</error-handler>
+		</try>
 		<choice
 			doc:name="Choice"
 			doc:id="b3a8e5ba-4057-4f0c-b3e9-593a37de606e">
@@ -50,18 +52,21 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 					message="Request CID is from Marvel Comic" />
 			</when>
 			<otherwise>
-				<raise-error
-					doc:name="Request CID is NOT from Marvel Comic"
-					doc:id="bbc64a41-d29a-4e12-af77-a9a2fb6c8894"
-					type="APP:CID_DOESNT_MATCH_COMIC"
-					description="Request CID is NOT from Marvel Comic" />
+				<raise-error doc:name="Request CID is NOT from Marvel Comic" doc:id="bbc64a41-d29a-4e12-af77-a9a2fb6c8894" type="APP:CID_DOESNT_MATCH_COMIC" description="Request CID is NOT from Marvel Comic" />
+
 			</otherwise>
-		</choice>
+		
+</choice>
 	</flow>
 	<flow name="get-movies-data-by-cid" doc:id="68304cf4-929c-4d58-9860-e2162bbb0ebe" >
 		<until-successful maxRetries="2" doc:name="Until Successful" doc:id="dd71b5e6-5d46-4842-bb6b-e21e5b09a0df" millisBetweenRetries="1000">
 			<try doc:name="Try" doc:id="8f0232dd-70b5-42c2-975c-f49b97c389d4" >
-				<super-heros-movies-data-sapi:fetch-movies-data-using-cid doc:name="Fetch Movies Data using CID" doc:id="0b87bd49-bf44-48e3-a78a-006c1f2d662b" target="superMovies" config-ref="superHerosMoviesDataSAPIConfig" id="#[vars.CID]" />
+<!-- [STUDIO:"Fetch Movies Data using CID"]				<super-heros-movies-data-sapi:fetch-movies-data-using-cid doc:name="Fetch Movies Data using CID" doc:id="0b87bd49-bf44-48e3-a78a-006c1f2d662b" target="superMovies" config-ref="superHerosMoviesDataSAPIConfig" id="#[vars.CID]" /> [STUDIO] -->
+				<http:request method="GET" doc:name="Fetch Movies Data using CID" doc:id="c992d63b-d7fc-4478-9567-f5a2fa889ae5" config-ref="superMoviesSAPIConfig" path="/movies/{cid}" target="superMovies">
+					<http:uri-params ><![CDATA[#[{
+	cid: vars.CID
+}]]]></http:uri-params>
+				</http:request>
 				<error-handler >
 					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8773e9af-7f02-4cac-ad98-8e81f5d9519d" type="SUPER-HEROS-MOVIES-DATA-SAPI:CONNECTIVITY, SUPER-HEROS-MOVIES-DATA-SAPI:TIMEOUT, SUPER-HEROS-MOVIES-DATA-SAPI:TOO_MANY_REQUESTS">
 						<logger level="INFO" doc:name="Transient Error" doc:id="cb74bde0-bdb5-4695-959f-8a4cc5357221" message="Transient Error"/>
@@ -81,7 +86,12 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 	</flow>
 	<flow name="get-biodata-by-cid" doc:id="ef8ed872-e2e9-44a3-bd50-e472bf13891e" >
 		<ee:cache doc:name="Cache" doc:id="dc49c8e6-0c4e-487e-930c-4508991d203e" cachingStrategy-ref="bioDataCachingStrategy">
-			<super-heros-bio-data-sapi:get-biodata-by-cid doc:name="Get BioData by CID" doc:id="5140f7b4-d49f-471c-a00a-bd186dda293a" config-ref="superHerosBioDataSAPIConfig" id="#[vars.CID]" target="superBioData" />
+<!-- [STUDIO:"Get BioData by CID"]			<super-heros-bio-data-sapi:get-biodata-by-cid doc:name="Get BioData by CID" doc:id="5140f7b4-d49f-471c-a00a-bd186dda293a" config-ref="superHerosBioDataSAPIConfig" id="#[vars.CID]" target="superBioData" /> [STUDIO] -->
+			<http:request method="GET" doc:name="Get BioData by CID" doc:id="61eb8798-5ee1-4b6f-9f49-28c8f2c10c57" config-ref="superBioDataSAPIConfig" path="/bio/{cid}" target="superBioData">
+				<http:uri-params ><![CDATA[#[{
+	cid: vars.CID
+}]]]></http:uri-params>
+			</http:request>
 		</ee:cache>
 	</flow>
 	<flow name="get-tickets-data-by-bid" doc:id="053a84b2-0270-4b80-893f-aa4bf9c180a7" >
