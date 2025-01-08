@@ -1,0 +1,10 @@
+tls:
+  keystore:
+      type: "pkcs12"
+      path: "certs/super-tickets-papi.p12"
+      alias: "mule-server"
+      
+api:
+  id: '18982552'
+  callBack:
+    url: "https://localhost:8082/api/cancelShow"  # Change this when deploying to CloudHub to - https://${fullDomain}/api/cancelShow

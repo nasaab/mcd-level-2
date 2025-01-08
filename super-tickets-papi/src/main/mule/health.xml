@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:liveness-check="http://www.mulesoft.org/schema/mule/liveness-check"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/liveness-check http://www.mulesoft.org/schema/mule/liveness-check/current/mule-liveness-check.xsd">
+	<import doc:name="Import" doc:id="55f27442-7bb0-4997-8c70-4111702affd5" file="health-library.xml" />
+	<sub-flow
+		name="dependency-liveness-status"
+		doc:id="d9d4e659-7938-4f16-badb-87425ea56619">
+		<liveness-check:endpoint-liveness-check doc:name="Liveness - Super Movies SAPI" doc:id="eed14d09-9d28-4da5-a875-6b43855c6ec7" url="http://test-super-movies-sapi.us-e2.cloudhub.io/live"/>
+		<liveness-check:endpoint-liveness-check doc:name="Liveness - Super BioData SAPI1" doc:id="7f35c203-2967-4c2a-a405-76a79252c0eb" url="http://test-super-biodata-sapi.us-e2.cloudhub.io/live" />
+		<liveness-check:endpoint-liveness-check doc:name="Liveness - Booking REST API" doc:id="5651564d-de22-40ea-8949-98ce3bdec63d" url="https://onlineman477-eval-prod.apigee.net/booking/live" />
+	</sub-flow>
+</mule>
