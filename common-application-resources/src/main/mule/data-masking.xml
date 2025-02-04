@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="data-maskingFlow" doc:id="1ae4f0b2-0af3-48a5-bfc8-cfc5fd385070" >
+		<ee:transform doc:name="Transform Message" doc:id="b6ea289f-ed33-43cb-98ed-108b221b60d7" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="logMaskedData" ><![CDATA[%dw 2.0
+output application/json
+fun recursivefunction(data, keyName, fieldsToMask) =
+  data match {
+    case is Array  -> data map recursivefunction($, null, fieldsToMask)
+    case is Object -> data mapObject {($$): recursivefunction($, $$, fieldsToMask)}
+    else           -> if(fieldsToMask contains(keyName as String)) "****" else data
+  }
+---
+recursivefunction(payload, null, Mule::p("fields.to.mask"))]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log Masked Data" doc:id="a67c8d9b-1de5-40e1-8ad2-c7126d5e0158" message="Data : #[vars.logMaskedData]"/>
+	</flow>
+</mule>
