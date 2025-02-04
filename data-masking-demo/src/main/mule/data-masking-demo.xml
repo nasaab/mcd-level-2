@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b82fcdc4-176c-4f2b-8f46-08a9c50fc840" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<import doc:name="Import" doc:id="7e1aa474-5f05-4655-9395-612f848023a5" file="data-masking.xml" />
+	<configuration-properties doc:name="Configuration properties" doc:id="2fe3265e-e4ed-490d-a098-1a9e4dcec254" file="application.properties" />
+	<flow name="data-masking-demoFlow" doc:id="743b3d30-91e1-4035-9286-7ee1c89d17ea" >
+		<http:listener doc:name="Listener" doc:id="74552dfb-615b-4979-ad20-4c1291b3b84c" config-ref="HTTP_Listener_config" path="/test"/>
+		<flow-ref doc:name="data-maskingFlow" doc:id="4e8d86f3-df93-4a01-b660-1a5e98d74ae5" name="data-maskingFlow"/>
+		<set-payload value="#[vars.logMaskedData]" doc:name="Masked Data" doc:id="29627e40-2906-4980-9ecf-aa2bc87061b4" />
+	</flow>
+</mule>
